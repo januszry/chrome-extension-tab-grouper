@@ -1,7 +1,66 @@
 import React from "react";
+import styled from "styled-components";
 
-class TabItem extends React.Component<{ tab: chrome.tabs.Tab }, {}> {
-  constructor(props: { tab: chrome.tabs.Tab; } | Readonly<{ tab: chrome.tabs.Tab; }>) {
+interface TabItemProps {
+  className?: string,
+  tab: chrome.tabs.Tab,
+  groups: Map<number, chrome.tabGroups.TabGroup>,
+}
+
+function getColor(colorName: string): string {
+  const map = new Map(Object.entries({
+    'grey': 'rgb(84, 88, 93)',
+    'blue': 'rgb(25, 104, 229)',
+    'red': 'rgb(212, 42, 33)',
+    'yellow': 'rgb(248, 161, 0)',
+    'green': 'rgb(23, 117, 49)',
+    'pink': 'rgb(202, 23, 121)',
+    'purple': 'rgb(151, 58, 242)',
+    'cyan': 'rgb(0, 112, 120)',
+    'orange': 'rgb(249, 133, 54)',
+  }));
+  return map.get(colorName) || 'black';
+}
+
+const TabItemTitle = styled.h3`
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const TabItemPath = styled.p`
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const TabItemGroupIndicator = styled.div`
+  flex-shrink: 0;
+  margin-right: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  opacity: 0.95;
+  background-color: ${props => props.color};
+`;
+
+const TabItemFlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const TabItemTextContainer = styled.div`
+  min-width: 0;
+`;
+
+const TabItemOutContainer = styled.li`
+  padding: 8px 10px;
+`;
+
+class TabItem extends React.Component<TabItemProps, {}> {
+  constructor(props: TabItemProps | Readonly<TabItemProps>) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
   }
@@ -14,13 +73,25 @@ class TabItem extends React.Component<{ tab: chrome.tabs.Tab }, {}> {
 
   render() {
     const url = new URL(this.props.tab.url!);
+    let groupColor = 'black';
+    if (this.props.tab.groupId) {
+      const group = this.props.groups.get(this.props.tab.groupId);
+      if (group) {
+        groupColor = group.color.toString();
+      }
+    }
     return (
-      <li>
+      <TabItemOutContainer>
         <a onClick={this.handleClick}>
-          <h3 className="title">{this.props.tab.title}</h3>
-          <p className="pathname">{url.pathname}</p>
+          <TabItemFlexContainer>
+            <TabItemGroupIndicator color={getColor(groupColor)} />
+            <TabItemTextContainer>
+              <TabItemTitle>{this.props.tab.title}</TabItemTitle>
+              <TabItemPath>{url.pathname}</TabItemPath>
+            </TabItemTextContainer>
+          </TabItemFlexContainer>
         </a>
-      </li>);
+      </TabItemOutContainer>);
   }
 }
 

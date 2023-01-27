@@ -4,25 +4,13 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  width: 500px;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-body {
-  width: 20rem;
-}
-
-ul {
-  list-style-type: none;
-  padding-inline-start: 0;
-  margin: 1rem 0;
-}
-
-li {
-  padding: 0.25rem;
 }
 
 li:nth-child(odd) {
@@ -31,9 +19,4 @@ li:nth-child(odd) {
 
 li:nth-child(even) {
   background: #ffffff;
-}
-
-h3,
-p {
-  margin: 0;
 }
