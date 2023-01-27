@@ -15,16 +15,29 @@ const GroupContent = styled.ul`
   margin: 1rem 0;
 `;
 
-class HostGroup extends React.Component<{ host: string, tabs: chrome.tabs.Tab[], groups: Map<number, chrome.tabGroups.TabGroup> }, {}> {
-  constructor(props: { host: string; tabs: chrome.tabs.Tab[]; groups: Map<number, chrome.tabGroups.TabGroup>; } | Readonly<{ host: string; tabs: chrome.tabs.Tab[]; groups: Map<number, chrome.tabGroups.TabGroup>; }>) {
+interface HostGroupProps {
+  host: string,
+  tabs: chrome.tabs.Tab[],
+  activeTab: chrome.tabs.Tab | undefined,
+  groups: Map<number, chrome.tabGroups.TabGroup>,
+}
+
+class HostGroup extends React.Component<HostGroupProps, {}> {
+  constructor(props: HostGroupProps | Readonly<HostGroupProps>) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
   }
 
   async handleClick() {
     const tabIds = this.props.tabs.map(tab => tab.id!);
+    if (tabIds.length === 0) {
+      return;
+    }
     const group = await chrome.tabs.group({ tabIds });
-    chrome.tabGroups.update(group, { title: this.props.host! });
+    await chrome.tabGroups.update(group, { title: this.props.host! });
+    if (this.props.activeTab && this.props.activeTab.id && !tabIds.includes(this.props.activeTab.id)) {
+      await chrome.tabs.update(tabIds[0], { active: true });
+    }
   }
 
   render() {

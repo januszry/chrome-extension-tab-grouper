@@ -33,18 +33,31 @@ async function getGroups(): Promise<Map<number, chrome.tabGroups.TabGroup>> {
   return new Map(groups.map(i => [i.id, i]));
 }
 
-class Container extends React.Component<{}, { tabs: Map<string, chrome.tabs.Tab[]>, groups: Map<number, chrome.tabGroups.TabGroup> }> {
+async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
+  const tabs = await chrome.tabs.query({ active: true });
+  return tabs.length > 0 ? tabs[0] : undefined;
+}
+
+interface ContainerStates {
+  tabs: Map<string, chrome.tabs.Tab[]>,
+  groups: Map<number, chrome.tabGroups.TabGroup>,
+  activeTab: chrome.tabs.Tab | undefined,
+}
+
+class Container extends React.Component<{}, ContainerStates> {
   constructor(props: {}) {
     super(props);
     this.state = {
       tabs: new Map<string, chrome.tabs.Tab[]>(),
       groups: new Map<number, chrome.tabGroups.TabGroup>(),
+      activeTab: undefined,
     }
   }
 
   handleRefresh(): void {
     getTabs().then(tabs => this.setState({ tabs }));
     getGroups().then(groups => this.setState({ groups }));
+    getActiveTab().then(tab => this.setState({ activeTab: tab }));
   }
 
   componentDidMount(): void {
@@ -53,7 +66,7 @@ class Container extends React.Component<{}, { tabs: Map<string, chrome.tabs.Tab[
   render(): React.ReactNode {
     const listItems = new Array<JSX.Element>();
     this.state.tabs.forEach((value, key) => {
-      listItems.push(<HostGroup host={key} tabs={value} groups={this.state.groups} />);
+      listItems.push(<HostGroup host={key} tabs={value} activeTab={this.state.activeTab} groups={this.state.groups} />);
     })
     return (
       <div onClick={() => this.handleRefresh()}>
