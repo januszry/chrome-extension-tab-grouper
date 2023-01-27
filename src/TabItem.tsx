@@ -6,7 +6,8 @@ class TabItem extends React.Component<{ tab: chrome.tabs.Tab }, {}> {
     this.handleClick = this.handleClick.bind(this);
   }
 
-  async handleClick() {
+  async handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    event.stopPropagation();
     await chrome.tabs.update(this.props.tab.id!, { active: true });
     await chrome.windows.update(this.props.tab.windowId, { focused: true });
   }

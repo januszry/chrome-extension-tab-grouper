@@ -7,7 +7,8 @@ class HostGroup extends React.Component<{ host: string, tabs: chrome.tabs.Tab[] 
     this.handleClick = this.handleClick.bind(this);
   }
 
-  async handleClick() {
+  async handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    event.stopPropagation();
     const tabIds = this.props.tabs.map(tab => tab.id!);
     const group = await chrome.tabs.group({ tabIds });
     chrome.tabGroups.update(group, { title: this.props.host! });
