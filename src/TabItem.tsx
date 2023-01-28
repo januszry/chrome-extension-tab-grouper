@@ -79,7 +79,7 @@ class TabItem extends React.Component<TabItemProps, {}> {
 
   render() {
     const url = new URL(this.props.tab.url!);
-    let groupColor = 'black';
+    let groupColor = null;
     if (this.props.tab.groupId) {
       const group = this.props.groups.get(this.props.tab.groupId);
       if (group) {
@@ -90,7 +90,7 @@ class TabItem extends React.Component<TabItemProps, {}> {
       <TabItemOutContainer>
         <a onClick={this.handleClick}>
           <TabItemFlexContainer>
-            <TabItemGroupIndicator color={getColor(groupColor)} />
+            {groupColor && <TabItemGroupIndicator color={getColor(groupColor)} />}
             <TabItemTextContainer>
               <TabItemTitle>{this.props.tab.title}</TabItemTitle>
               <TabItemPath>{url.pathname}</TabItemPath>
