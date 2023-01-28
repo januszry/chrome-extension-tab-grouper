@@ -11,6 +11,14 @@ const ContainerBox = styled.div`
   flex-direction: column;
 `;
 
+function getSLD(host: string) {
+  const split = host.split('.');
+  if (split.length <= 2) {
+    return host;
+  }
+  return split[split.length - 2] + '.' + split[split.length - 1];
+}
+
 async function getTabs(): Promise<Map<string, chrome.tabs.Tab[]>> {
   const tabs = await chrome.tabs.query({
     url: [
@@ -24,14 +32,15 @@ async function getTabs(): Promise<Map<string, chrome.tabs.Tab[]>> {
   const map = new Map<string, chrome.tabs.Tab[]>();
 
   for (const tab of tabs) {
-    if (undefined === tab.url) {
+    if (!tab.id || tab.id == chrome.tabs.TAB_ID_NONE || undefined === tab.url) {
       continue;
     }
     const url = new URL(tab.url);
-    var group = map.get(url.host);
+    const sld = getSLD(url.host);
+    var group = map.get(sld);
     if (undefined === group) {
       group = new Array<chrome.tabs.Tab>();
-      map.set(url.host, group);
+      map.set(sld, group);
     }
     group.push(tab);
   }
@@ -90,16 +99,21 @@ class Container extends React.Component<{}, ContainerStates> {
       if (tabs.length == 0) {
         return;
       }
-      listItems.push(
-        <HostGroup
-          host={host}
-          tabs={tabs}
-          activeTab={activeTab}
-          groups={groups}
-          group={group}
-          textFilter={textFilter}
-          refresh={this.handleRefresh}
-        />);
+      const item = <HostGroup
+        host={host}
+        tabs={tabs}
+        activeTab={activeTab}
+        groups={groups}
+        group={group}
+        textFilter={textFilter}
+        refresh={this.handleRefresh}
+      />;
+      const tabIds = new Set<number | undefined>(tabs.filter(tab => tab.id != chrome.tabs.TAB_ID_NONE).map(tab => tab.id));
+      if (activeTab?.id && tabIds.has(activeTab.id)) {
+        listItems.unshift(item);
+      } else {
+        listItems.push(item);
+      }
     })
     return (
       <ContainerBox>

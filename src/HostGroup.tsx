@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import ColorPicker from "./ColorPicker";
 import TabItem from "./TabItem";
 
 const GroupTitle = styled.h2`
@@ -50,8 +49,9 @@ interface HostGroupProps {
 class HostGroup extends React.Component<HostGroupProps, {}> {
   constructor(props: HostGroupProps | Readonly<HostGroupProps>) {
     super(props);
+    this.handleCreateGroup = this.handleCreateGroup.bind(this);
     this.handleMoveGroupHere = this.handleMoveGroupHere.bind(this);
-    this.handleDismissGroup = this.handleDismissGroup.bind(this);
+    this.handleUngroup = this.handleUngroup.bind(this);
   }
 
   fullyGroupedInCurrentWindow(): boolean | undefined {
@@ -66,10 +66,22 @@ class HostGroup extends React.Component<HostGroupProps, {}> {
     this.props.refresh();
   }
 
-  async handleDismissGroup(event: React.MouseEvent<HTMLButtonElement>) {
+  async handleUngroup(event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
     await chrome.tabs.ungroup(this.props.tabs.map(tab => tab.id!));
     this.props.refresh();
+  }
+
+  async handleCreateGroup(event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    const { host, tabs, refresh } = this.props;
+    const tabIds = tabs.map(tab => tab.id!);
+    if (tabIds.length === 0) {
+      return;
+    }
+    const newGroup = await chrome.tabs.group({ tabIds });
+    await chrome.tabGroups.update(newGroup, { title: host! });
+    refresh();
   }
 
   tabHit(tab: chrome.tabs.Tab): boolean {
@@ -96,10 +108,11 @@ class HostGroup extends React.Component<HostGroupProps, {}> {
           <GroupTitle>{host}</GroupTitle>
           {
             group == undefined
-              ? <ColorPicker host={host} tabs={tabs} refresh={refresh} />
+              // ? <ColorPicker host={host} tabs={tabs} refresh={refresh} />
+              ? <Button onClick={this.handleCreateGroup} color='green'>Group</Button>
               : (
                 this.fullyGroupedInCurrentWindow()
-                  ? <Button onClick={this.handleDismissGroup} color='red'>Dismiss</Button>
+                  ? <Button onClick={this.handleUngroup} color='red'>Ungroup</Button>
                   : <Button onClick={this.handleMoveGroupHere} color='grey'>To Here</Button>
               )
           }
