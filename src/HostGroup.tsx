@@ -13,26 +13,29 @@ const GroupTitle = styled.h1`
 
 const CreateGroupButton = styled.button`
   border-width: 0;
-  border-radius: 2px;
+  border-radius: 3px;
   background-color: green;
   color: white;
-  width: 80px;
+  width: 70px;
+  height: 20px;
 `;
 
 const MoveGroupHereButton = styled.button`
   border-width: 0;
-  border-radius: 2px;
+  border-radius: 3px;
   background-color: grey;
   color: white;
-  width: 80px;
+  width: 70px;
+  height: 20px;
 `;
 
 const DismissButton = styled.button`
   border-width: 0;
-  border-radius: 2px;
+  border-radius: 3px;
   background-color: red;
   color: white;
-  width: 80px;
+  width: 70px;
+  height: 20px;
 `;
 
 const GroupTitleFlexContainer = styled.div`

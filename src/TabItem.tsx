@@ -87,7 +87,7 @@ class TabItem extends React.Component<TabItemProps, {}> {
       <TabItemOutContainer>
         <a onClick={this.handleClick}>
           <TabItemFlexContainer unselectable={hit ? 'off' : 'on'}>
-            {groupColor && <TabItemGroupIndicator color={getColor(groupColor)} />}
+            {groupColor && <TabItemGroupIndicator color={getColor(groupColor)} title={group?.title} />}
             <TabItemTextContainer>
               <TabItemTitle>{tab.title}</TabItemTitle>
               <TabItemPath>{url.pathname}</TabItemPath>
