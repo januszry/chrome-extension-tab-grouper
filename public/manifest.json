@@ -15,6 +15,7 @@
     "https://*/*"
   ],
   "permissions": [
+    "tabs",
     "tabGroups"
   ]
 }
