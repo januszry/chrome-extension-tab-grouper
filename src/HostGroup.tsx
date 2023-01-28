@@ -33,6 +33,15 @@ class HostGroup extends React.Component<HostGroupProps, {}> {
     if (tabIds.length === 0) {
       return;
     }
+    const existingGroupIds = new Set<number>(this.props.tabs.map(tab => tab.groupId));
+    if (existingGroupIds.size == 1 && this.props.tabs[0].groupId != -1) {
+      // If all tabs belong to a same group, only move the group to current window if not
+      const group = this.props.groups.get(this.props.tabs[0].groupId);
+      if (group && this.props.activeTab && group.windowId != this.props.activeTab.windowId) {
+        await chrome.tabGroups.move(group.id, { windowId: this.props.activeTab.windowId, index: -1 });
+      }
+      return;
+    }
     const group = await chrome.tabs.group({ tabIds });
     await chrome.tabGroups.update(group, { title: this.props.host! });
     if (this.props.activeTab && this.props.activeTab.id && !tabIds.includes(this.props.activeTab.id)) {

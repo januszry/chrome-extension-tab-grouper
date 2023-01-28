@@ -34,7 +34,7 @@ async function getGroups(): Promise<Map<number, chrome.tabGroups.TabGroup>> {
 }
 
 async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
-  const tabs = await chrome.tabs.query({ active: true });
+  const tabs = await chrome.tabs.query({ currentWindow: true, active: true });
   return tabs.length > 0 ? tabs[0] : undefined;
 }
 
