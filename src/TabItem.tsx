@@ -57,6 +57,12 @@ const TabItemTextContainer = styled.div`
 
 const TabItemOutContainer = styled.li`
   padding: 8px 10px;
+  &:nth-child(odd) {
+    background: #80808030;
+  }
+  &:nth-child(even) {
+    background: #ffffff;
+  }
 `;
 
 class TabItem extends React.Component<TabItemProps, {}> {
