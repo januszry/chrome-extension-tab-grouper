@@ -65,8 +65,10 @@ class Container extends React.Component<{}, ContainerStates> {
   }
   render(): React.ReactNode {
     const listItems = new Array<JSX.Element>();
-    this.state.tabs.forEach((value, key) => {
-      listItems.push(<HostGroup host={key} tabs={value} activeTab={this.state.activeTab} groups={this.state.groups} />);
+    this.state.tabs.forEach((tabs, host) => {
+      const existingGroupIds = new Set<number>(tabs.map(tab => tab.groupId));
+      const group = existingGroupIds.size == 1 && tabs[0].groupId != -1 ? this.state.groups.get(tabs[0].groupId) : undefined;
+      listItems.push(<HostGroup host={host} tabs={tabs} activeTab={this.state.activeTab} groups={this.state.groups} group={group} />);
     })
     return (
       <div onClick={() => this.handleRefresh()}>

@@ -4,7 +4,7 @@ import styled from "styled-components";
 interface TabItemProps {
   className?: string,
   tab: chrome.tabs.Tab,
-  groups: Map<number, chrome.tabGroups.TabGroup>,
+  group: chrome.tabGroups.TabGroup | undefined,
 }
 
 function getColor(colorName: string): string {
@@ -79,13 +79,7 @@ class TabItem extends React.Component<TabItemProps, {}> {
 
   render() {
     const url = new URL(this.props.tab.url!);
-    let groupColor = null;
-    if (this.props.tab.groupId) {
-      const group = this.props.groups.get(this.props.tab.groupId);
-      if (group) {
-        groupColor = group.color.toString();
-      }
-    }
+    const groupColor = this.props.group?.color.toString();
     return (
       <TabItemOutContainer>
         <a onClick={this.handleClick}>
