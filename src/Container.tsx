@@ -1,5 +1,15 @@
-import React from 'react';
+import React, { ChangeEvent, Fragment } from 'react';
 import HostGroup from './HostGroup';
+import styled from 'styled-components';
+
+const InputBox = styled.input`
+  margin: 10px;
+`;
+
+const ContainerBox = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 async function getTabs(): Promise<Map<string, chrome.tabs.Tab[]>> {
   const tabs = await chrome.tabs.query({
@@ -42,6 +52,7 @@ interface ContainerStates {
   tabs: Map<string, chrome.tabs.Tab[]>,
   groups: Map<number, chrome.tabGroups.TabGroup>,
   activeTab: chrome.tabs.Tab | undefined,
+  textFilter: string,
 }
 
 class Container extends React.Component<{}, ContainerStates> {
@@ -51,7 +62,9 @@ class Container extends React.Component<{}, ContainerStates> {
       tabs: new Map<string, chrome.tabs.Tab[]>(),
       groups: new Map<number, chrome.tabGroups.TabGroup>(),
       activeTab: undefined,
+      textFilter: '',
     }
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   handleRefresh(): void {
@@ -60,20 +73,31 @@ class Container extends React.Component<{}, ContainerStates> {
     getActiveTab().then(tab => this.setState({ activeTab: tab }));
   }
 
+  handleInputChange(event: ChangeEvent<HTMLInputElement>): void {
+    this.setState({ textFilter: event.target.value });
+  }
+
   componentDidMount(): void {
     this.handleRefresh();
   }
   render(): React.ReactNode {
     const listItems = new Array<JSX.Element>();
-    this.state.tabs.forEach((tabs, host) => {
+    const { textFilter, groups, activeTab, tabs } = this.state;
+    tabs.forEach((tabs, host) => {
       const existingGroupIds = new Set<number>(tabs.map(tab => tab.groupId));
-      const group = existingGroupIds.size == 1 && tabs[0].groupId != -1 ? this.state.groups.get(tabs[0].groupId) : undefined;
-      listItems.push(<HostGroup host={host} tabs={tabs} activeTab={this.state.activeTab} groups={this.state.groups} group={group} />);
+      const group = existingGroupIds.size == 1 && tabs[0].groupId != -1 ? groups.get(tabs[0].groupId) : undefined;
+      if (tabs.length == 0) {
+        return;
+      }
+      listItems.push(<HostGroup host={host} tabs={tabs} activeTab={activeTab} groups={groups} group={group} textFilter={textFilter} />);
     })
     return (
-      <div onClick={() => this.handleRefresh()}>
-        {listItems}
-      </div>
+      <ContainerBox>
+        <InputBox autoFocus={true} onChange={this.handleInputChange}></InputBox>
+        <div onClick={() => this.handleRefresh()}>
+          {listItems}
+        </div>
+      </ContainerBox>
     );
   }
 }

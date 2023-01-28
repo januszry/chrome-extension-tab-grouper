@@ -55,6 +55,7 @@ interface HostGroupProps {
   activeTab: chrome.tabs.Tab | undefined,
   group: chrome.tabGroups.TabGroup | undefined,  // only exists if all tabs under the group belongs to a same group
   groups: Map<number, chrome.tabGroups.TabGroup>,
+  textFilter: string,
 }
 
 class HostGroup extends React.Component<HostGroupProps, {}> {
@@ -89,21 +90,30 @@ class HostGroup extends React.Component<HostGroupProps, {}> {
     return await chrome.tabs.ungroup(this.props.tabs.map(tab => tab.id!));
   }
 
+  tabHit(tab: chrome.tabs.Tab): boolean {
+    const { textFilter } = this.props;
+    if (textFilter.length == 0) {
+      return true;
+    }
+    return tab.title?.toLocaleLowerCase().search(textFilter.toLocaleLowerCase()) != -1
+      || tab.url?.toLocaleLowerCase().search(textFilter.toLocaleLowerCase()) != -1;
+  }
+
   render() {
     const { group, groups, host, tabs } = this.props;
-    const listItems = tabs.map((tab: chrome.tabs.Tab) => <TabItem tab={tab} group={groups.get(tab.groupId)} />)
+    const listItems = tabs.map((tab: chrome.tabs.Tab) => <TabItem tab={tab} group={groups.get(tab.groupId)} hit={this.tabHit(tab)} />)
     return (
       <GroupContainer>
         <GroupTitleFlexContainer>
           <GroupTitle>{host}</GroupTitle>
           {
             group == undefined
-            ? <CreateGroupButton onClick={this.handleCreateGroup}>Create</CreateGroupButton>
-            : (
-              this.fullyGroupedInCurrentWindow()
-              ? <DismissButton onClick={this.handleDismissGroup}>Dismiss</DismissButton>
-              : <MoveGroupHereButton onClick={this.handleMoveGroupHere}>To Here</MoveGroupHereButton>
-            )
+              ? <CreateGroupButton onClick={this.handleCreateGroup}>Create</CreateGroupButton>
+              : (
+                this.fullyGroupedInCurrentWindow()
+                  ? <DismissButton onClick={this.handleDismissGroup}>Dismiss</DismissButton>
+                  : <MoveGroupHereButton onClick={this.handleMoveGroupHere}>To Here</MoveGroupHereButton>
+              )
           }
         </GroupTitleFlexContainer>
         <GroupContent>{listItems}</GroupContent>

@@ -5,6 +5,7 @@ interface TabItemProps {
   className?: string,
   tab: chrome.tabs.Tab,
   group: chrome.tabGroups.TabGroup | undefined,
+  hit: boolean,
 }
 
 function getColor(colorName: string): string {
@@ -49,6 +50,7 @@ const TabItemGroupIndicator = styled.div`
 const TabItemFlexContainer = styled.div`
   display: flex;
   align-items: center;
+  opacity: ${props => props.unselectable == 'on' ? 0.2 : 1};
 `;
 
 const TabItemTextContainer = styled.div`
@@ -78,15 +80,16 @@ class TabItem extends React.Component<TabItemProps, {}> {
   }
 
   render() {
-    const url = new URL(this.props.tab.url!);
-    const groupColor = this.props.group?.color.toString();
+    const { tab, group, hit } = this.props;
+    const url = new URL(tab.url!);
+    const groupColor = group?.color.toString();
     return (
       <TabItemOutContainer>
         <a onClick={this.handleClick}>
-          <TabItemFlexContainer>
+          <TabItemFlexContainer unselectable={hit ? 'off' : 'on'}>
             {groupColor && <TabItemGroupIndicator color={getColor(groupColor)} />}
             <TabItemTextContainer>
-              <TabItemTitle>{this.props.tab.title}</TabItemTitle>
+              <TabItemTitle>{tab.title}</TabItemTitle>
               <TabItemPath>{url.pathname}</TabItemPath>
             </TabItemTextContainer>
           </TabItemFlexContainer>
