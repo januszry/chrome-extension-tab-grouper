@@ -1,26 +1,18 @@
 import React from "react";
 import styled from "styled-components";
+import { colorMap } from "./ColorPicker";
+import Indicator from "./Indicator";
 
 interface TabItemProps {
   className?: string,
   tab: chrome.tabs.Tab,
   group: chrome.tabGroups.TabGroup | undefined,
   hit: boolean,
+  refresh: () => void,
 }
 
 function getColor(colorName: string): string {
-  const map = new Map(Object.entries({
-    'grey': 'rgb(84, 88, 93)',
-    'blue': 'rgb(25, 104, 229)',
-    'red': 'rgb(212, 42, 33)',
-    'yellow': 'rgb(248, 161, 0)',
-    'green': 'rgb(23, 117, 49)',
-    'pink': 'rgb(202, 23, 121)',
-    'purple': 'rgb(151, 58, 242)',
-    'cyan': 'rgb(0, 112, 120)',
-    'orange': 'rgb(249, 133, 54)',
-  }));
-  return map.get(colorName) || 'black';
+  return colorMap.get(colorName) || 'black';
 }
 
 const TabItemTitle = styled.h3`
@@ -35,16 +27,6 @@ const TabItemPath = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
-
-const TabItemGroupIndicator = styled.div`
-  flex-shrink: 0;
-  margin-right: 8px;
-  width: 12px;
-  height: 12px;
-  border-radius: 6px;
-  opacity: 0.95;
-  background-color: ${props => props.color};
 `;
 
 const TabItemFlexContainer = styled.div`
@@ -87,7 +69,7 @@ class TabItem extends React.Component<TabItemProps, {}> {
       <TabItemOutContainer>
         <a onClick={this.handleClick}>
           <TabItemFlexContainer unselectable={hit ? 'off' : 'on'}>
-            {groupColor && <TabItemGroupIndicator color={getColor(groupColor)} title={group?.title} />}
+            {groupColor && <Indicator color={getColor(groupColor)} title={group?.title} />}
             <TabItemTextContainer>
               <TabItemTitle>{tab.title}</TabItemTitle>
               <TabItemPath>{url.pathname}</TabItemPath>

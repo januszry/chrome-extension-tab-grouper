@@ -65,6 +65,7 @@ class Container extends React.Component<{}, ContainerStates> {
       textFilter: '',
     }
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleRefresh = this.handleRefresh.bind(this);
   }
 
   handleRefresh(): void {
@@ -89,14 +90,21 @@ class Container extends React.Component<{}, ContainerStates> {
       if (tabs.length == 0) {
         return;
       }
-      listItems.push(<HostGroup host={host} tabs={tabs} activeTab={activeTab} groups={groups} group={group} textFilter={textFilter} />);
+      listItems.push(
+        <HostGroup
+          host={host}
+          tabs={tabs}
+          activeTab={activeTab}
+          groups={groups}
+          group={group}
+          textFilter={textFilter}
+          refresh={this.handleRefresh}
+        />);
     })
     return (
       <ContainerBox>
         <InputBox autoFocus={true} onChange={this.handleInputChange}></InputBox>
-        <div onClick={() => this.handleRefresh()}>
-          {listItems}
-        </div>
+        {listItems}
       </ContainerBox>
     );
   }
