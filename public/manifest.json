@@ -10,10 +10,15 @@
   },
   "description": "Tab manager and navigator.",
   "action": {
-    "default_popup": "index.html"
+    "default_popup": "popup.html"
   },
   "permissions": [
     "tabs",
-    "tabGroups"
-  ]
+    "tabGroups",
+    "storage"
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
 }

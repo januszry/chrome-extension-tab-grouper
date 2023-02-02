@@ -11,12 +11,12 @@ const ContainerBox = styled.div`
   flex-direction: column;
 `;
 
-function getSLD(host: string) {
+function getDomainName(host: string, domainGroupLevel: number) {
   const split = host.split('.');
-  if (split.length <= 2) {
+  if (split.length <= domainGroupLevel) {
     return host;
   }
-  return split[split.length - 2] + '.' + split[split.length - 1];
+  return split.slice(-domainGroupLevel).join('.');
 }
 
 async function getTabs(): Promise<Map<string, chrome.tabs.Tab[]>> {
@@ -25,6 +25,11 @@ async function getTabs(): Promise<Map<string, chrome.tabs.Tab[]>> {
       "https://*/*"
     ],
   });
+
+  const savedOptions = await chrome.storage.sync.get({
+    domainGroupLevel: 3,
+  });
+  const domainGroupLevel = savedOptions.domainGroupLevel;
 
   const collator = new Intl.Collator();
   tabs.sort((a, b) => collator.compare(a.title!, b.title!));
@@ -36,7 +41,7 @@ async function getTabs(): Promise<Map<string, chrome.tabs.Tab[]>> {
       continue;
     }
     const url = new URL(tab.url);
-    const sld = getSLD(url.host);
+    const sld = getDomainName(url.host, domainGroupLevel);
     var group = map.get(sld);
     if (undefined === group) {
       group = new Array<chrome.tabs.Tab>();
